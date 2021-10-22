@@ -15,6 +15,7 @@ let allServicePrices;
 const isNumber = function(num) {
     return !isNaN(parseFloat(num)) && isFinite(num);
 };
+
 const asking = function() {
     title = prompt("Как называется ваш проект?");
     screens = prompt(
@@ -48,8 +49,8 @@ const getAllServicePrices = function() {
             service2 = prompt("Какой дополнительный тип услуги нужен?", " ");
         }
         do {
-            sumService = prompt("Сколько это будет стоить?");
-        } while (!isNumber(sum));
+            sumService = +prompt("Сколько это будет стоить?");
+        } while (!isNumber(sumService));
         sum += +sumService;
     }
 
