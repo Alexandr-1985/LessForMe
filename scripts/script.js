@@ -49,7 +49,7 @@ const getAllServicePrices = function() {
             service2 = prompt("Какой дополнительный тип услуги нужен?", " ");
         }
         do {
-            sumService = +prompt("Сколько это будет стоить?");
+            sumService = prompt("Сколько это будет стоить?");
         } while (!isNumber(sumService));
         sum += +sumService;
     }
