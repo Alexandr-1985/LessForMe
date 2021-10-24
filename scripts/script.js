@@ -1,80 +1,91 @@
 "use strict";
 //isFinite - проверка на число
 const isNumber = function(num) {
-    return !isNaN(parseFloat(num)) && isFinite(num);
+    return (!isNaN(parseFloat(num)) && isFinite(num)) || num.trim() === " ";
 };
+
+function isString(s) {
+    return !(!isNumber(s) || s === undefined || s === null || s.trim() === " ");
+}
 
 const appData = {
     title: "",
-    screens: "",
+    screens: [],
     screenPrice: 0,
     adaptive: true,
-    service1: "",
-    service2: "",
+    services: {},
     rollback: 6,
     fullPrice: 0,
     servicePercentPrice: 0,
     allServicePrices: 0,
 
     asking: function() {
-        appData.title = prompt("Как называется ваш проект?");
-        appData.screens = prompt(
-            "Какие типы экранов нужно разработать?",
-            "Простые, Сложные, Интерактивные"
-        );
-
-        //while (isNaN(screenPrice) || screenPrice.trim() === "" || screenPrice === null)
         do {
-            appData.screenPrice = prompt("Сколько будет стоить данная работа?");
-        } while (!isNumber(appData.screenPrice));
+            appData.title = prompt("Как называется ваш проект?");
+        } while (isString(appData.title) || appData.title.trim() === "");
+
+        for (let i = 0; i < 2; i++) {
+            let name;
+            let sumService = 0;
+
+            do {
+                name = prompt("Какие типы экранов нужно разработать?");
+            } while (isString(name) || name.trim() === "");
+
+            do {
+                sumService = prompt("Сколько будет стоить данная работа");
+            } while (!isNumber(sumService) || sumService.trim() === "");
+
+            //ответы сохраняем в массиве объекта
+            appData.screens.push({ id: 1, name: name, sumService: sumService });
+        }
+
+        for (let i = 0; i < 2; i++) {
+            let name;
+            let sumService = 0;
+
+            do {
+                name = prompt("Какой дополнительный тип услуги нужен?", " ");
+            } while (isString(name) || name.trim() === "");
+
+            do {
+                sumService = prompt("Сколько это будет стоить?");
+            } while (!isNumber(sumService) || sumService.trim() === "");
+            //выводим ключь значение
+            appData.services[name] = +sumService;
+        }
 
         appData.adaptive = confirm("Нужен ли адаптив на сайте?");
     },
 
-    //Функция возвращает сумму всех дополнительных услуг
-    getAllServicePrices: function() {
-        let sum = 0;
-
-        for (let i = 0; i < 2; i++) {
-            let sumService = 0;
-            if (i === 0) {
-                appData.service1 = prompt(
-                    "Какой дополнительный тип услуги нужен?",
-                    " "
-                );
-            }
-            if (i === 1) {
-                appData.service2 = prompt(
-                    "Какой дополнительный тип услуги нужен?",
-                    " "
-                );
-            }
-            do {
-                sumService = prompt("Сколько это будет стоить?");
-            } while (!isNumber(sumService));
-            sum += +sumService;
+    //метод будет высчитывать стоимость наших услуг и экранов
+    addPrices: function() {
+        //перебираем типы экранов
+        for (let screen of appData.screens) {
+            appData.screenPrice += +screen.sumService;
         }
-
-        return sum;
+        //возвращает сумму всех дополнительных услуг
+        for (let key in appData.services) {
+            appData.allServicePrices += appData.services[key];
+        }
     },
 
     //Функция возвращает сумму стоимости верстки и стоимости дополнительных услуг
     getFullPrice: function() {
-        return appData.screenPrice + appData.allServicePrices;
+        appData.fullPrice = appData.screenPrice + appData.allServicePrices;
     },
 
     //Функция возвращает title меняя его таким образом: первый символ с большой буквы, остальные с маленькой".
     getTitle: function() {
-        return (
+        appData.title =
             appData.title.trim()[0].toUpperCase() +
-            appData.title.trim().substr(1).toLowerCase()
-        );
-        // return title.trim().toLocaleLowerCase().split(" ");
+            appData.title.trim().substr(1).toLowerCase();
     },
 
     //Функция возвращает итоговую стоимость за вычетом процента отката.
     getServicePercentPrices: function() {
-        return appData.fullPrice - appData.fullPrice * (appData.rollback / 100);
+        appData.servicePercentPrice =
+            appData.fullPrice - appData.fullPrice * (appData.rollback / 100);
     },
 
     //Конструктор условий
@@ -92,21 +103,20 @@ const appData = {
 
     start: function() {
         appData.asking();
-        appData.allServicePrices = appData.getAllServicePrices();
-        appData.fullPrice = appData.getFullPrice();
-        appData.title = appData.getTitle();
-        appData.servicePercentPrice = appData.getServicePercentPrices();
+        appData.addPrices();
+        appData.getFullPrice();
+        appData.getTitle();
+        appData.getServicePercentPrices();
+
         appData.logger();
     },
 
     //метод будет выводить в консоль необходимую информацию
     logger: function() {
-        for (let elem in appData) {
-            console.log("Свойства: " + elem + ", Методы объекта: " + appData[elem]);
-        }
         // Для проерки что ф - я appData работает выводим два значения
         console.log(appData.fullPrice);
         console.log(appData.servicePercentPrice);
+        console.log(appData.screens);
     },
 };
 
