@@ -8,6 +8,53 @@ function isString(s) {
     return !(!isNumber(s) || s === undefined || s === null || s.trim() === " ");
 }
 
+//console.dir(document);
+
+//Получить заголовок "Калькулятор верстки"через метод getElementsByTagName.(тэг h1, получить именно элемент, а не коллекцию)
+const title = document.getElementsByTagName("h1")[0];
+console.log(title);
+
+//Получить кнопки "Рассчитать" и "Сброс" через метод getElementsByClassName.(класс handler_btn)
+const calcBtn = document.getElementsByClassName("handler_btn")[0];
+console.log(calcBtn);
+const resetBtn = document.getElementsByClassName("handler_btn")[1];
+console.log(resetBtn);
+
+// Получить кнопку "+" под выпадающим списком через метод querySelector.(класс screen - btn)
+const plusBtn = document.querySelector(".screen-btn");
+console.log(plusBtn);
+
+//Получить все элементы с классом other - items в две разные переменные.В первую элементы у которых так же присутствует класс percent, во вторую элементы у которых так же присутствует класс number через метод querySelectorAll.
+const otherItemsPercent = document.querySelectorAll(".other-items.percent");
+console.log(otherItemsPercent);
+const otherItemsNumber = document.querySelectorAll(".other-items.number");
+console.log(otherItemsNumber);
+
+//Получить input type = range через его родителя с классом rollback одним запросом через метод querySelector.
+const inputRange = document.querySelector(".rollback input");
+console.log(inputRange);
+
+//Получить span с классом range - value через его родителя с классом rollback одним запросом через метод querySelector.
+const spanRange = document.querySelector(".rollback .range-value");
+console.log(spanRange);
+
+//Получить все инпуты с классом total - input справа через метод getElementsByClassName.(класс total - input, получить именно элементы, а не коллекции)
+const total = document.getElementsByClassName("total-input")[0];
+console.log(total);
+const totalCount = document.getElementsByClassName("total-input")[1];
+console.log(totalCount);
+const totalCountOther = document.getElementsByClassName("total-input")[2];
+console.log(totalCountOther);
+const totalFullCount = document.getElementsByClassName("total-input")[3];
+console.log(totalFullCount);
+
+const totalCountRollback = document.getElementsByClassName("total-input")[4];
+console.log(totalCountRollback);
+
+//Получить все блоки с классом screen в изменяемую переменную(let) через метод querySelectorAll(далее мы будем переопределять ее значение)
+const screens = document.querySelectorAll(".screen");
+console.log(screens);
+
 const appData = {
     title: "",
     screens: [],
@@ -45,7 +92,7 @@ const appData = {
             let sumService = 0;
 
             do {
-                name = prompt("Какой дополнительный тип услуги нужен?", " ");
+                name = prompt("Какой дополнительный тип услуги нужен?");
             } while (isString(name) || name.trim() === "");
 
             do {
