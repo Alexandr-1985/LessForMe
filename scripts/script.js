@@ -1,170 +1,89 @@
 "use strict";
-//isFinite - проверка на число
-const isNumber = function(num) {
-    return (!isNaN(parseFloat(num)) && isFinite(num)) || num.trim() === " ";
-};
 
-function isString(s) {
-    return !(!isNumber(s) || s === undefined || s === null || s.trim() === " ");
+//Работа с Index1.html
+const books = document.querySelectorAll(".books"),
+    arrBook = document.querySelectorAll(".book");
+
+console.log(books);
+console.log(arrBook);
+
+//Восстановить порядок книг.
+const arr = Object.keys(arrBook).sort((prev, next) => {
+    if (
+        arrBook[prev].firstElementChild.innerText >
+        arrBook[next].firstElementChild.innerText
+    ) {
+        return 1;
+    }
+    if (
+        arrBook[prev].firstElementChild.innerText <
+        arrBook[next].firstElementChild.innerText
+    ) {
+        return -1;
+    }
+});
+for (let i = 0; i < arr.length; i++) {
+    books[0].append(arrBook[arr[i]]);
 }
 
-//console.dir(document);
+//Заменить картинку заднего фона на другую из папки image
+document.querySelector("body").style.background = "url(./image/open_book.jpg)";
+//document.querySelector('body').style.backgroundImage = ('url(./image/open_book.jpg)');
 
-//Получить заголовок "Калькулятор верстки"через метод getElementsByTagName.(тэг h1, получить именно элемент, а не коллекцию)
-const title = document.getElementsByTagName("h1")[0];
-console.log(title);
+//Исправить заголовок в книге 3( Получится - "Книга 3. this и Прототипы Объектов")
+books[0].children[2].querySelector("h2").querySelector("a").textContent =
+    '"Книга 3. this и Прототипы Объектов"';
 
-//Получить кнопки "Рассчитать" и "Сброс" через метод getElementsByClassName.(класс handler_btn)
-const calcBtn = document.getElementsByClassName("handler_btn")[0];
-console.log(calcBtn);
-const resetBtn = document.getElementsByClassName("handler_btn")[1];
-console.log(resetBtn);
+//Удалить рекламу со страницы
+document.querySelector(".adv").remove();
 
-// Получить кнопку "+" под выпадающим списком через метод querySelector.(класс screen - btn)
-const plusBtn = document.querySelector(".screen-btn");
-console.log(plusBtn);
-
-//Получить все элементы с классом other - items в две разные переменные.В первую элементы у которых так же присутствует класс percent, во вторую элементы у которых так же присутствует класс number через метод querySelectorAll.
-const otherItemsPercent = document.querySelectorAll(".other-items.percent");
-console.log(otherItemsPercent);
-const otherItemsNumber = document.querySelectorAll(".other-items.number");
-console.log(otherItemsNumber);
-
-//Получить input type = range через его родителя с классом rollback одним запросом через метод querySelector.
-const inputRange = document.querySelector(".rollback input");
-console.log(inputRange);
-
-//Получить span с классом range - value через его родителя с классом rollback одним запросом через метод querySelector.
-const spanRange = document.querySelector(".rollback .range-value");
-console.log(spanRange);
-
-//Получить все инпуты с классом total - input справа через метод getElementsByClassName.(класс total - input, получить именно элементы, а не коллекции)
-const total = document.getElementsByClassName("total-input")[0];
-console.log(total);
-const totalCount = document.getElementsByClassName("total-input")[1];
-console.log(totalCount);
-const totalCountOther = document.getElementsByClassName("total-input")[2];
-console.log(totalCountOther);
-const totalFullCount = document.getElementsByClassName("total-input")[3];
-console.log(totalFullCount);
-
-const totalCountRollback = document.getElementsByClassName("total-input")[4];
-console.log(totalCountRollback);
-
-//Получить все блоки с классом screen в изменяемую переменную(let) через метод querySelectorAll(далее мы будем переопределять ее значение)
-const screens = document.querySelectorAll(".screen");
-console.log(screens);
-
-const appData = {
-    title: "",
-    screens: [],
-    screenPrice: 0,
-    adaptive: true,
-    services: {},
-    rollback: 6,
-    fullPrice: 0,
-    servicePercentPrice: 0,
-    allServicePrices: 0,
-
-    asking: function() {
-        do {
-            appData.title = prompt("Как называется ваш проект?");
-        } while (isString(appData.title) || appData.title.trim() === "");
-
-        for (let i = 0; i < 2; i++) {
-            let name;
-            let sumService = 0;
-
-            do {
-                name = prompt("Какие типы экранов нужно разработать?");
-            } while (isString(name) || name.trim() === "");
-
-            do {
-                sumService = prompt("Сколько будет стоить данная работа");
-            } while (!isNumber(sumService) || sumService.trim() === "");
-
-            //ответы сохраняем в массиве объекта
-            appData.screens.push({ id: 1, name: name, sumService: sumService });
+//Восстановить порядок глав во второй и пятой книге (внимательно инспектируйте индексы элементов, поможет dev tools)
+const sortChapterLi = (collection) => {
+    const sortElements = (arr) => {
+        const arrLi = Object.keys(arr).sort((prev, next) => {
+            if (arr[prev].textContent > arr[next].textContent) {
+                return 1;
+            }
+            if (arr[prev].textContent < arr[next].textContent) {
+                return -1;
+            }
+        });
+        let arrNewLi = [];
+        for (let i = 0; i < arrLi.length; i++) {
+            arrNewLi.push(arr[arrLi[i]]);
         }
+        return arrNewLi;
+    };
 
-        for (let i = 0; i < 2; i++) {
-            let name;
-            let sumService = 0;
+    let arrChapters = [];
+    let arrApp = [];
 
-            do {
-                name = prompt("Какой дополнительный тип услуги нужен?");
-            } while (isString(name) || name.trim() === "");
-
-            do {
-                sumService = prompt("Сколько это будет стоить?");
-            } while (!isNumber(sumService) || sumService.trim() === "");
-            //выводим ключь значение
-            appData.services[name] = +sumService;
+    const elem = collection.querySelectorAll("li");
+    elem.forEach((elLi) => {
+        if (elLi.textContent.indexOf("Введение") > 1) {
+            collection.insertAdjacentElement("beforebegin", elem[0]);
+        } else if (elLi.textContent.indexOf("Предисловие") > 1) {
+            collection.insertAdjacentElement("beforebegin", elem[1]);
+        } else if (elLi.textContent.indexOf("Глава") > -1) {
+            arrChapters.push(elLi);
+        } else if (elLi.textContent.indexOf("Приложение") > -1) {
+            arrApp.push(elLi);
         }
-
-        appData.adaptive = confirm("Нужен ли адаптив на сайте?");
-    },
-
-    //метод будет высчитывать стоимость наших услуг и экранов
-    addPrices: function() {
-        //перебираем типы экранов
-        for (let screen of appData.screens) {
-            appData.screenPrice += +screen.sumService;
-        }
-        //возвращает сумму всех дополнительных услуг
-        for (let key in appData.services) {
-            appData.allServicePrices += appData.services[key];
-        }
-    },
-
-    //Функция возвращает сумму стоимости верстки и стоимости дополнительных услуг
-    getFullPrice: function() {
-        appData.fullPrice = appData.screenPrice + appData.allServicePrices;
-    },
-
-    //Функция возвращает title меняя его таким образом: первый символ с большой буквы, остальные с маленькой".
-    getTitle: function() {
-        appData.title =
-            appData.title.trim()[0].toUpperCase() +
-            appData.title.trim().substr(1).toLowerCase();
-    },
-
-    //Функция возвращает итоговую стоимость за вычетом процента отката.
-    getServicePercentPrices: function() {
-        appData.servicePercentPrice =
-            appData.fullPrice - appData.fullPrice * (appData.rollback / 100);
-    },
-
-    //Конструктор условий
-    getRollbackMessage: function(price) {
-        if (price >= 30000) {
-            return "Даем скидку в 10%";
-        } else if (price >= 15000 && price < 30000) {
-            return "Даем скидку в 5 %";
-        } else if (price >= 0 && price < 15000) {
-            return "Скидка не предусмотрена";
-        } else {
-            return "Что то пошло не так";
-        }
-    },
-
-    start: function() {
-        appData.asking();
-        appData.addPrices();
-        appData.getFullPrice();
-        appData.getTitle();
-        appData.getServicePercentPrices();
-
-        appData.logger();
-    },
-
-    //метод будет выводить в консоль необходимую информацию
-    logger: function() {
-        // Для проерки что ф - я appData работает выводим два значения
-        console.log(appData.fullPrice);
-        console.log(appData.servicePercentPrice);
-        console.log(appData.screens);
-    },
+    });
+    arrChapters = sortElements(arrChapters);
+    arrChapters.forEach((elLi) => {
+        collection.append(elLi);
+    });
+    arrApp = sortElements(arrApp);
+    arrApp.forEach((elLi) => {
+        collection.append(elLi);
+    });
 };
 
-appData.start();
+sortChapterLi(books[0].children[1].querySelector("ul"));
+sortChapterLi(books[0].children[4].querySelector("ul"));
+
+//в шестой книге добавить главу “Глава 8: За пределами ES6” и поставить её в правильное место
+let chapter = document.createElement("li");
+chapter.innerText = "Глава 8: За пределами ES6";
+sortChapterLi.books[0].children[5].querySelector("ul").append(chapter);
