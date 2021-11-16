@@ -28,13 +28,15 @@ const totalCount = document.getElementsByClassName("total-input")[1];
 const totalCountOther = document.getElementsByClassName("total-input")[2];
 const totalFullCount = document.getElementsByClassName("total-input")[3];
 const totalCountRollback = document.getElementsByClassName("total-input")[4];
-
+console.log(totalCount);
 /*const mainControlsSelect = document.querySelector(".main-controls__select");
 const viewsSelect = document.createElement("class");
 console.log(viewsSelect);*/
 
 //Получить все блоки с классом screen в изменяемую переменную(let) через метод querySelectorAll(далее мы будем переопределять ее значение)
-const screens = document.querySelectorAll(".screen");
+let screens = document.querySelectorAll(".screen");
+let screensAll = document.querySelector("div.main-controls__views");
+console.log(screensAll);
 
 const appData = {
     title: "",
@@ -49,19 +51,21 @@ const appData = {
     servicePricesNumber: 0, //все услуги с фиксированной суммой
     servicesPercent: {}, //кладем цену ввиде процента
     servicesNumbers: {}, //кладем фиксированную стоимость
+    numCount: 0,
 
     //метод будет запускаться во время загрузки страницы и будет запускать метод start
     init: function() {
         appData.addTitle();
-
-        //вешаем событие
-        document
-            .getElementsByClassName("handler_btn")
-            .calcBtn.addEventListener("click", appData.start);
-        if (calcBtn.length === "" && calcBtn.length === null) {
-            calcBtn.style.display = "none";
-        }
+        appData.disabled();
+        calcBtn.addEventListener("click", appData.start);
         plusBtn.addEventListener("click", appData.addScreenBlock);
+        screensAll.addEventListener("change", appData.checkScreens);
+        inputRange.addEventListener("input", appData.checkRollback);
+    },
+
+    //отключаем клавишу
+    disabled: function() {
+        calcBtn.disabled = "disabled";
     },
 
     addTitle: function() {
@@ -77,80 +81,70 @@ const appData = {
         appData.addPrices();
         //appData.getServicePercentPrices();
         //appData.logger();
-        appData.showRange();
+        // appData.showRange();
         appData.showResult();
     },
-
-    showRange: function() {
-        const logger = function(event) {
-            spanRange.textContent = event.target.value;
-        };
-        inputRange.addEventListener("input", logger);
-        // inputRange.addEventListener("change", logger);
-
-        appData.rollback = spanRange.textContent;
-    },
-
-    //метод который выводит все на экран
-    showResult: function() {
-        total.value = appData.screenPrice;
-        totalCount.value = appData.screens;
-        totalCountOther.value =
-            appData.servicePricesPercent + appData.servicePricesNumber;
-        totalFullCount.value = appData.fullPrice;
-        totalCountRollback.value = appData.servicePercentPrice;
-    },
-
     //метод для заполнения св-ва screens объектами на основе из верстки
     addScreens: function() {
-        //переопределяем коллекцию перед каждым расчетом
-        const screens = document.querySelectorAll(".screen");
-
+        screens = document.querySelectorAll(".screen");
         screens.forEach(function(screen, index) {
-            // console.log(screen);
-            const select = screen.querySelector("select");
-            const input = screen.querySelector("input");
+            let select = screen.querySelector("select");
+            let input = screen.querySelector("input");
             //достаем index текст
             const selectName = select.options[select.selectedIndex].textContent;
-            //console.log(select.value);
-            //console.log(input.value);
+            console.log(select);
+            console.log(input);
+            console.log(selectName);
             appData.screens.push({
                 id: index,
                 name: selectName,
                 sumService: +select.value * +input.value,
-                count: input,
+                count: +input.value,
             });
+            console.log(appData.screens);
         });
-        console.log(appData.screens);
     },
-
     //перебираем обе коллекции достаем инфу и записать в объект services
     addServices: function() {
         otherItemsPercent.forEach(function(item) {
             const check = item.querySelector("input[type=checkbox]");
             const label = item.querySelector("label");
             const input = item.querySelector("input[type = text]");
-
             if (check.checked) {
                 appData.servicesPercent[label.textContent] = +input.value;
             }
         });
-
         otherItemsNumber.forEach(function(item) {
             const check = item.querySelector("input[type=checkbox]");
             const label = item.querySelector("label");
             const input = item.querySelector("input[type = text]");
-
             if (check.checked) {
                 appData.servicesNumbers[label.textContent] = +input.value;
             }
         });
     },
-
     addScreenBlock: function() {
         //создаем переменную первого элемента в коллекции screens
         const cloneScreen = screens[0].cloneNode(true);
         screens[screens.length - 1].after(cloneScreen);
+    },
+
+    checkRollback: function() {
+        spanRange.innerHTML = inputRange.value + "%";
+        appData.rollback = +inputRange.value;
+        //метод рассчитывает доход с учетом отката посреднику
+        appData.servicePercentPrice =
+            appData.fullPrice - appData.fullPrice * (appData.rollback / 100);
+        totalCountRollback.value = appData.servicePercentPrice;
+    },
+
+    //метод который выводит все на экран
+    showResult: function() {
+        total.value = appData.screenPrice;
+        totalCount.value = appData.numCount;
+        totalCountOther.value =
+            appData.servicePricesPercent + appData.servicePricesNumber;
+        totalFullCount.value = appData.fullPrice;
     },
 
     //метод будет высчитывать стоимость наших услуг и экранов
@@ -159,28 +153,59 @@ const appData = {
         for (let screen of appData.screens) {
             appData.screenPrice += +screen.sumService;
         }
-        //количнство экранов
-        for (let screen of appData.screens) {
-            appData.screens += screen * appData.addScreenBlock;
-        }
         //возвращает сумму всех дополнительных услуг
         for (let key in appData.servicesNumbers) {
             appData.servicePricesNumber += appData.servicesNumbers[key];
         }
-        //возвращает ghjwtyn
+        //возвращает процентные доп услуги
         for (let key in appData.servicesPercent) {
             appData.servicePricesPercent +=
                 appData.screenPrice * (appData.servicesPercent[key] / 100);
         }
+        //количнство экранов
+        for (let numberCount of appData.screens) {
+            appData.numCount += numberCount.count;
+        }
+        //метод рассчитывает доход с учетом отката посреднику
+        appData.servicePercentPrice =
+            appData.fullPrice - appData.fullPrice * (appData.rollback / 100);
+
         //возвращает сумму стоимости верстки и стоимости дополнительных услуг
         appData.fullPrice =
             appData.screenPrice +
             appData.servicePricesNumber +
             appData.servicePricesPercent;
+    },
+    checkScreens: function() {
+        screens = document.querySelectorAll(".screen");
+        let arrInp = [];
+        let arrSel = [];
+        console.log(arrInp);
+        console.log(arrSel);
+        let inputCheck = document.querySelectorAll(
+            "div.main-controls__input > input"
+        );
+        let selectCheck = document.querySelectorAll(
+            "div.main-controls__select > select"
+        );
 
-        //метод рассчитывает доход с учетом отката посреднику
-        appData.servicePercentPrice =
-            appData.fullPrice - appData.fullPrice * (appData.rollback / 100);
+        for (let inp of inputCheck) {
+            if (inp.value === "") {
+                arrInp.push(inp.value);
+            }
+        }
+
+        for (let sel of selectCheck) {
+            if (sel.value === "") {
+                arrSel.push(sel.value);
+            }
+        }
+
+        if (arrInp.length >= 2 || arrSel.length >= 2) {
+            calcBtn.disabled = "disabled";
+        } else {
+            calcBtn.disabled = "";
+        }
     },
 
     //метод будет выводить в консоль необходимую информацию
